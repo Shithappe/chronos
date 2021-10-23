@@ -1,28 +1,20 @@
 <template>
 
   <div class="calendars">
-    <h1>Calendars</h1>
-    <button @click="handleAddCalendar">Add</button>
+    <div class="list">
+        <h1>Calendars</h1>
+        <button id="addCalendar" @click="handleAddCalendar">+</button>
+    </div>
 
     <ul>
-        <li v-for="calendar in calendars" :key="calendar.description">
-            <input type="checkbox" v-model="chackedCalendars" name="calendar">
-            <label for="calendar">{{ calendar.description }}</label>
+        <li class="list" v-for="calendar in calendars" :key="calendar.description">
+            <div>
+              <input type="checkbox" v-model="chackedCalendars" :value="calendar.id" @change="getCheckedCalendars" name="calendar" checked>
+              <label for="calendar">{{ calendar.description }}<span>_{{ calendar.id }}</span> </label>
+            </div>
+            <button class="setting" @click="getCalendarId(calendar.id)"><img src="https://www.pinpng.com/pngs/m/145-1454324_png-file-svg-setting-icon-black-and-white.png" alt=""></button>
         </li>
     </ul>    
-
-
-
-    <!-- <ul v-for="user in users">
-      <input type="checkbox" v-bind:key="user" v-model="selectedUsers">
-       <label>{{user.name}}</label><br>
-    </ul> -->
-      
-    <ul>
-        <li v-for="user in selectedUsers">{{user.name}} - {{user.age}}</li>
-    </ul>
-
-
   </div>
 
 
@@ -31,7 +23,7 @@
   </div>
   
 
-<GDialog v-model="createEvent" height="500" max-width="500">
+<GDialog v-model="createEvent" height="600" max-width="500">
   <div class="modal">
     <h1>Add Event</h1>
     <div class="forms">
@@ -47,7 +39,7 @@
         </div>
         <input type="color" v-model="new_event.color" placeholder="Color" required>
       </div>
-        <input type="number" v-model="new_event.calendar_id">
+        <input type="number" v-model="new_event.calendar_id" placeholder="Calendar_id" required>
       <br><br><br>
       <input type="submit" value="Create">
     </form>
@@ -55,7 +47,7 @@
   </div>
 </GDialog>
 
-<GDialog v-model="updateEvent" height="500" max-width="500">
+<GDialog v-model="updateEvent" height="600" max-width="500">
   <div class="modal">
     <h1>Edit event</h1>
     <div class="forms">
@@ -70,7 +62,8 @@
         </div>
         <input type="color" v-model="new_event.color" placeholder="Color" required>
       </div>
-      <br>
+      <input type="number" v-model="new_event.calendar_id" placeholder="Calendar_Id" required>
+      <br><br><br>
       <input type="submit" value="Save">
     </form>
     <button type="button" @click="deleteEvent(index)">Delete</button>
@@ -79,13 +72,31 @@
   </div>
 </GDialog>
 
-<GDialog v-model="addCalendar" height="300" max-width="500">
+<GDialog v-model="addCalendar" height="250" max-width="500">
   <div class="modal">
     <h1>Add Calendar</h1>
     <form @submit="createCalendar">
       <input type="text" placeholder="Title" v-model="MyCalendar.title" required autofocus>
       <input type="submit" value="Add">
     </form>
+  </div>
+</GDialog>
+
+<GDialog v-model="setCalendar" height="400" max-width="500">
+  <div class="modal">
+    <h1>Setting</h1>
+    <h3>Share calendar</h3>
+    <div class="forms">
+
+      <form @submit="shareCalendarfunc">
+        <input type="email" placeholder="Enter e-mail to share" v-model="shareCalendar.email" required autofocus>
+        <!-- <input type="text" placeholder="Rule" v-model="shareCalendar.access" required> -->
+        <input type="submit" value="Share">
+      </form>
+      <br>
+      <button type="button" @click="deleteCalendar(index)">Delete</button>
+    </div>
+
   </div>
 </GDialog>
 </template>
@@ -109,14 +120,11 @@ components: {
   },
  data() {
     return {
-       users:[
-                {name:'Tom', age:22},
-                {name:'Bob', age:25},
-                {name:'Sam', age:28},
-                {name:'Alice', age:26}
-            ],
-        selectedUsers:[],
-
+      shareCalendar: {
+        email: '',
+        calendar_id: undefined,
+        access: 'write'
+      },
       MyCalendar: {
         title: ""
       },
@@ -127,12 +135,13 @@ components: {
         color: '#000000',
         allDay: false,
         title: '',
-        calendar_id: 0
+        calendar_id: undefined
       },
       chackedCalendars: [],
       createEvent: false,
       updateEvent: false,
       addCalendar: false,
+      setCalendar: false,
       calendars: [],
       calendarOptions: {
         events: [],
@@ -154,7 +163,6 @@ components: {
     }
   },
   mounted(){
-    // console.log(Cookies.get('token'));
     if (Cookies.get('token') === undefined) this.$router.push({path: '/auth'});
 
     axios.defaults.headers['Authorization'] = `Bearer ${Cookies.get('token')}`;
@@ -162,11 +170,6 @@ components: {
     axios.get('http://127.0.0.1:8000/api/user_calendars')
      .then((response) => { 
        this.calendars = response.data;
-      
-       axios.get(`http://127.0.0.1:8000/api/calendar/${this.calendars[0].id}/events`)
-            .then((response) => { 
-              this.calendarOptions.events = response.data;
-            })
       })
   },
 
@@ -199,12 +202,10 @@ components: {
               'calendar_id': this.new_event.calendar_id,
               'title': this.new_event.title,
               'allDay': this.new_event.allDay
-            }
-            )
+            })
             .then((response) => {
                 console.log(response);
-                 axios.get(`http://127.0.0.1:8000/api/calendar/${this.calendars[0].id}/events`)
-                  .then((response) => {this.calendarOptions.events = response.data;})
+                this.getCheckedCalendars();
                 this.createEvent = !this.createEvent;
             })
         },
@@ -216,26 +217,22 @@ components: {
               'start': this.new_event.start,
               'end': this.new_event.end,
               'backgroundColor': this.new_event.color,
-              'calendar_id': 1,
+              'calendar_id': this.new_event.calendar_id,
               'title': this.new_event.title,
               'allDay': this.new_event.allDay
             }
             )
             .then((response) => {
                 console.log(response);
-                   axios.get(`http://127.0.0.1:8000/api/calendar/${this.calendars[0].id}/events`)
-                    .then((response) => {this.calendarOptions.events = response.data;})
+                this.getCheckedCalendars();
                 this.updateEvent = !this.updateEvent;
             })
         },
 
         deleteEvent: function() {
           axios.delete(`http://127.0.0.1:8000/api/destroy_event/${this.new_event.id}`)
-            .then((response) => {
-                console.log(response);
-                 axios.get(`http://127.0.0.1:8000/api/calendar/${this.calendars[0].id}/events`)
-                  .then((response) => {this.calendarOptions.events = response.data;})
-                  this.selected = this.calendars[0].id;
+            .then(() => {
+                this.getCheckedCalendars();
                 this.updateEvent = !this.updateEvent;
             })
         },
@@ -245,8 +242,7 @@ components: {
            axios.post('http://127.0.0.1:8000/api/new_calendar', 
             {
               'description': this.MyCalendar.title,
-            }
-            )
+            })
             .then((response) => {
                 console.log(response);
                  axios.get('http://127.0.0.1:8000/api/user_calendars')
@@ -256,150 +252,51 @@ components: {
               }) 
         },
 
-        changeCalendar(){
-          axios.get(`http://127.0.0.1:8000/api/calendar/${this.selected}/events`)
+        getCheckedCalendars() {
+          this.calendarOptions.events = [];
+          this.chackedCalendars.forEach(id => {
+            axios.get(`http://127.0.0.1:8000/api/calendar/${id}/events`)
             .then((response) => { 
               console.log(response);
-              this.calendarOptions.events = response.data;
+              this.calendarOptions.events.push(...response.data);
+            })
+          });
+        },
+
+        shareCalendarfunc(e){
+          e.preventDefault();
+          axios.post('http://127.0.0.1:8000/api/share_calendar',
+          {
+            'email': this.shareCalendar.email,
+            'calendar_id': this.shareCalendar.calendar_id,
+            'access': 'write'
+          })
+          .then(() => { 
+                  this.setCalendar = !this.setCalendar;
+          })
+        },
+
+        deleteCalendar(){
+          console.log(this.shareCalendar.calendar_id);
+          axios.delete(`http://127.0.0.1:8000/api/destroy_calendar/${this.shareCalendar.calendar_id}`)
+            .then(() => {
+                  axios.get('http://127.0.0.1:8000/api/user_calendars')
+                  .then((response) => { this.calendars = response.data;})
+                this.getCheckedCalendars();
+                this.setCalendar = !this.setCalendar;
             })
         },
+
+        getCalendarId(id) {
+          this.shareCalendar.calendar_id = id;
+          this.setCalendar = !this.setCalendar;
+        }
+
 
   }
 } 
 </script>
 
-<style >
-
-#calendar{
-  width: 50%;
-  float: right;
-  margin: 1em;
-  padding: 1em;
-  border: 1px solid rgba(0, 0, 0, 0.08);
-  border-radius: 1em;
-  box-shadow: 4px 4px 10px 0px rgba(34, 60, 80, 0.2);
-}
-
-.calendars{
-  float: left;
-}
-
-.modal{
-  font-family: 'Raleway', sans-serif;
-  padding: 1em 2em 0;
-  /* padding-bottom: 0; */
-  display: flex;
-  flex-direction: column;
-}
-
-.forms{
-  padding: 1em;
-}
-
-.title{
-  font-size: 2em;
-}
-
-
-body {
-    background: linear-gradient(to right, #FFFFFF, #FFEFBA);
-}
-
-.container {
-    max-width: 640px;
-    font-size: 13px;
-    padding: 20px;
-    margin-left: 3.5em;
-    margin-top: 0.5em;
-}
-
-label{
-    padding: 8px 12px;
-    background-color: rgba(255, 255, 255, .9);
-    border: 2px solid rgba(139, 139, 139, .3);
-    color: #adadad;
-    border-radius: 25px;
-    margin: 3px 0px;
-    user-select: none;
-    transition: all .2s;
-}
-
-
-label::before {
-    font-weight: 900;
-    font-size: 12px;
-    padding: 2px 6px 2px 2px;
-    transition: all .3s ease-out;
-}
-
-input[type="checkbox"]:checked + label {
-    border: 2px solid #1bdbf8;
-    background-color: #12bbd4;
-    color: #fff;
-}
-
- input[type="checkbox"] {
-  position: absolute;
-  opacity: 0;
-  width: 5em;
-} 
-
-*{
-  box-sizing: border-box;
-}
-
-input, button{
-  font-size: 0.95em;
-  font-family: 'Raleway', sans-serif;
-  margin: 0 auto 1em;
-  width: 95%;
-  outline: none;
-  padding: 10px;
-  border: none;
-  box-shadow: 4px 4px 8px 0px rgba(34, 60, 80, 0.2);
-  background-color: rgba(255, 255, 255, 0.562);
-}
-
-input[type=radio]{
-  margin:auto;
-  width: auto;
-}
-
-input[type="color"] {
-  border: none;
-  background: #fff;
-  width: 4em;
-  height: 4em;
-  overflow: hidden;
-  outline: none;
-  border-radius: 25%;
-  padding: 5px;
-}
-
-input:hover{
-  background-color: rgba(255, 255, 255);
-  transition: all 1s ease-out;
-}
-
-input[type=submit]:hover{
-    background-color: rgba(14, 214, 57, 0.856);
-}
-
-input:active, input:focus{
-  box-shadow: 4px 4px 8px 0px rgba(34, 60, 80, 0.4);
-}
-
-button:hover{
-  background-color: rgb(255, 24, 74);
-  transition: all 1s ease-out;
-}
-
-.adv{
-  display: flex;
-}
-
-li{
-  margin: 40px;
-}
-
+<style scoped>
+  @import "./style.css";
 </style>

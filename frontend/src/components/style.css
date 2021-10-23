@@ -1,0 +1,187 @@
+#calendar{
+  width: 55%;
+  float: right;
+  margin: 1em;
+  padding: 1em;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 1em;
+  box-shadow: 4px 4px 10px 0px rgba(34, 60, 80, 0.2);
+}
+
+.calendars{
+  float: left;
+}
+
+.modal{
+  font-family: 'Raleway', sans-serif;
+  padding: 1em 2em 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.forms{
+  padding: 1em;
+}
+
+.title{
+  font-size: 2em;
+}
+
+
+body {
+    background: linear-gradient(to right, #FFFFFF, #FFEFBA);
+}
+
+.list{
+  display: -webkit-box;
+}
+
+.container {
+    max-width: 640px;
+    font-size: 13px;
+    padding: 20px;
+    margin-left: 3.5em;
+    margin-top: 0.5em;
+}
+
+label{
+    padding: 8px 12px;
+    background-color: rgba(255, 255, 255, .9);
+    border: 2px solid rgba(139, 139, 139, .3);
+    color: #adadad;
+    border-radius: 25px;
+    margin: 3px 0px;
+    user-select: none;
+    transition: all .2s;
+}
+
+label::before {
+    font-weight: 900;
+    font-size: 12px;
+    padding: 2px 6px 2px 2px;
+    transition: all .3s ease-out;
+}
+
+input[type="checkbox"]:checked + label {
+    border: 2px solid #1bdbf8;
+    background-color: #12bbd4;
+    color: #fff;
+}
+
+ input[type="checkbox"] {
+  position: absolute;
+  height: 20px;
+  opacity: 0;
+  width: 6.6vw;
+} 
+
+.modal *{
+  box-sizing: border-box;
+}
+
+input, button{
+  font-size: 0.95em;
+  font-family: 'Raleway', sans-serif;
+  margin: 0 auto 1em;
+  width: 95%;
+  outline: none;
+  padding: 10px;
+  border: none;
+  box-shadow: 4px 4px 8px 0px rgba(34, 60, 80, 0.2);
+  background-color: rgba(255, 255, 255, 0.562);
+}
+
+input[type=radio]{
+  margin:auto;
+  width: auto;
+}
+
+input[type="color"] {
+  border: none;
+  background: #fff;
+  width: 4em;
+  height: 4em;
+  overflow: hidden;
+  outline: none;
+  border-radius: 25%;
+  padding: 5px;
+}
+
+input:hover{
+  background-color: rgba(255, 255, 255);
+  transition: all 1s ease-out;
+}
+
+input[type=submit]:hover{
+    background-color: rgba(14, 214, 57, 0.856);
+}
+
+input:active, input:focus{
+  box-shadow: 4px 4px 8px 0px rgba(34, 60, 80, 0.4);
+}
+
+button:hover{
+  background-color: rgb(255, 24, 74);
+  transition: all 1s ease-out;
+}
+
+.setting{
+  width: 25px;
+  height: 25px;
+  box-shadow: none;
+  padding: 0;
+  margin-left: 10px;
+}
+.setting:hover{
+  box-shadow: 0;
+  background-color: rgba(0, 0, 0, 0);
+}
+
+img{
+  width: 25px;
+  height: 25px;
+  opacity: 15%;
+}
+img:hover{
+  transition: all 1s ease-out;
+  opacity: 50%;
+}
+
+#addCalendar{
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  padding: 0;
+  margin: 0.6em 0.3em 0;
+  background-color: rgba(0, 0, 0, 0);
+  font-size: 2em;
+  box-shadow: 4px 4px 8px 0px rgba(34, 60, 80, 0.1);
+}
+#addCalendar:hover{
+  background-color: rgb(255, 255, 255);
+  box-shadow: 4px 4px 8px 0px rgba(34, 60, 80, 0.4);
+}
+
+.adv{
+  display: flex;
+}
+
+li{
+  margin: 1em;
+}
+
+/* span{
+  font-size: 0.7em;
+  color: #2c3e50ad;
+} */
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox */
+input[type=number] {
+  -moz-appearance: textfield;
+}

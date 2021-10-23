@@ -114,8 +114,8 @@ class CalendarController extends Controller
      */
     public function destroy($id)
     {
-        $calendar = Calendar::where('id', $id)->where('user_id', auth()->id())->get();
-        if ($calendar->isEmpty()) return response('Calendar not exist', 403);
+        // $calendar = Calendar::where('id', $id)->where('user_id', auth()->id())->get();
+        // if ($calendar->isEmpty()) return response('Calendar not exist', 403);
         Calendar::destroy($id);
         return response('ok', 201);
     }
