@@ -1,4 +1,5 @@
 <template>
+  <div class="main">
 
   <div class="calendars">
     <div class="list">
@@ -20,6 +21,7 @@
 
   <div id="calendar">
     <FullCalendar :options="calendarOptions" />
+  </div>
   </div>
   
 

@@ -112,7 +112,7 @@ input:hover{
   transition: all 1s ease-out;
 }
 
-input[type=submit]:hover{
+input[type=submit]:hover, input[type=submit]:focus{
     background-color: rgba(14, 214, 57, 0.856);
 }
 
@@ -184,4 +184,23 @@ input::-webkit-inner-spin-button {
 /* Firefox */
 input[type=number] {
   -moz-appearance: textfield;
+}
+
+.main h1{
+  margin-left: 1em;
+}
+
+@media only screen and (max-width: 800px){
+  .calendars{
+    float: none;
+  }
+
+  .main{
+    display: flex;
+    flex-direction: column-reverse;
+  }
+
+  #calendar{
+    width: 90%;
+  }
 }
